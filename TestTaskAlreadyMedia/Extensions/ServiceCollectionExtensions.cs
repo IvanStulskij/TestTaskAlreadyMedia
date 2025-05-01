@@ -1,6 +1,8 @@
 ﻿using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.Extensions.Options;
+using TestTaskAlreadyMedia.Core.Models;
+using TestTaskAlreadyMedia.Infrasructure.Models;
 
 namespace TestTaskAlreadyMedia.Extensions;
 
@@ -15,5 +17,11 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddHangfireServer();
+    }
+
+    public static void ConfigureOptions(this IServiceCollection services, ConfigurationManager configuration)
+    {
+        services.Configure<DbSettings>(configuration.GetSection("DbSettings"));
+        services.Configure<CommonSettings>(configuration.GetSection("CommonSettings"));
     }
 }
