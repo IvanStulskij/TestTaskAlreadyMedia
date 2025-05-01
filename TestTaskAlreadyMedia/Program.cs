@@ -1,3 +1,7 @@
+using Hangfire;
+using TestTaskAlreadyMedia.Extensions;
+using TestTaskAlreadyMedia.Core;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHangfire();
+builder.Services.AddRefitServices();
 
 var app = builder.Build();
 

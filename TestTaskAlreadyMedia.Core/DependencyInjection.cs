@@ -1,11 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Refit;
+using TestTaskAlreadyMedia.Core.ExternalServices;
 
 namespace TestTaskAlreadyMedia.Core;
 
-internal class DependencyInjection
+public static class DependencyInjection
 {
+    public static void AddCoreServices(this IServiceCollection services)
+    {
+        var assembly = typeof(DependencyInjection).Assembly;
+        services.AddAutoMapper(assembly);
+    }
+
+    public static void AddRefitServices(this IServiceCollection services)
+    {
+        var refitSettings = new RefitSettings(new NewtonsoftJsonContentSerializer());
+        services.AddRefitClient<INasaDatasetApi>(refitSettings)
+            .ConfigureHttpClient((provider, client) =>
+            {
+                client.BaseAddress = new Uri("https://raw.githubusercontent.com/biggiko/nasa-dataset");
+            });
+    }
 }
