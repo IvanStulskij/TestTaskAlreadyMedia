@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using Refit;
 using TestTaskAlreadyMedia.Core.ExternalServices;
 using TestTaskAlreadyMedia.Core.Models;
 using TestTaskAlreadyMedia.Infrasructure;
@@ -94,7 +95,7 @@ public class GetNasaObjectsJob
         {
             nasaObjects = await _nasaApi.GetNasaObjects();
         }
-        catch (Exception exception)
+        catch (ApiException exception)
         {
             var message = exception.InnerException?.Message != null ? exception.InnerException.Message : exception.Message;
 

@@ -3,6 +3,7 @@ using Hangfire.PostgreSql;
 using Microsoft.Extensions.Options;
 using TestTaskAlreadyMedia.Core.Models;
 using TestTaskAlreadyMedia.Infrasructure.Models;
+using TestTaskAlreadyMedia.Middlewares;
 
 namespace TestTaskAlreadyMedia.Extensions;
 
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddHangfireServer();
+        services.AddTransient<ErrorHandlingMiddleware>();
     }
 
     public static void ConfigureOptions(this IServiceCollection services, ConfigurationManager configuration)
