@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TestTaskAlreadyMedia.Core.ExternalServices;
 using TestTaskAlreadyMedia.Core.Models;
 using TestTaskAlreadyMedia.Infrasructure;
@@ -9,6 +10,7 @@ namespace TestTaskAlreadyMedia.Core.Jobs;
 
 public class GetNasaObjectsJob
 {
+    private const string DuplicateNasaObject = "Selected NASA object already exist in database";
     private const int DuplicateNasaObjectErrorCode = 23505;
 
     private readonly INasaDatasetApi _nasaApi;
@@ -26,10 +28,12 @@ public class GetNasaObjectsJob
     {
         var externalNasaObjects = await GetExternalNasaObjects();
         var externalNasaObjectIds = externalNasaObjects.Select(x => x.Id);
+
         var dbNasaObjectsQuery = _context.NasaObjects.AsNoTracking()
             .Where(x => externalNasaObjectIds.Contains(x.NasaId));
         var dbNasaObjectNasaIds = await dbNasaObjectsQuery.Select(x => x.NasaId).ToListAsync();
         var dbNasaObjects = await dbNasaObjectsQuery.ToListAsync();
+
         var nasaObjectsToAdd = _mapper.Map<IEnumerable<NasaObject>>(externalNasaObjects.Where(x => !dbNasaObjectNasaIds.Contains(x.Id)));
         var nasaObjectIdsToDelete = await _context.NasaObjects.AsNoTracking()
             .Where(x => !externalNasaObjectIds.Contains(x.NasaId))
@@ -76,7 +80,7 @@ public class GetNasaObjectsJob
 
             if (message.Contains(DuplicateNasaObjectErrorCode.ToString()))
             {
-                //throw new ValidationException(Constants.ErrorMessages.BankProductAlreadyExist);
+                throw new ValidationException(DuplicateNasaObject);
             }
 
             throw;
@@ -85,7 +89,18 @@ public class GetNasaObjectsJob
 
     private async Task<IEnumerable<NasaObjectDto>> GetExternalNasaObjects()
     {
-        var nasaObjects = await _nasaApi.GetNasaObjects();
+        IEnumerable<NasaObjectDto> nasaObjects;
+        try
+        {
+            nasaObjects = await _nasaApi.GetNasaObjects();
+        }
+        catch (Exception exception)
+        {
+            var message = exception.InnerException?.Message != null ? exception.InnerException.Message : exception.Message;
+
+            throw new ValidationException($"Exception while getting data from resource : ${message}");
+        }
+        
 
         return nasaObjects;
     }

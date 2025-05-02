@@ -1,7 +1,6 @@
-using DevExtreme.AspNet.Data;
-using DevExtreme.AspNet.Data.ResponseModel;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TestTaskAlreadyMedia.Core;
 using TestTaskAlreadyMedia.Core.Handlers;
 
 namespace TestTaskAlreadyMedia.Controllers;
@@ -18,7 +17,7 @@ public class NasaObjectsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] DataSourceLoadOptionsBase loadOptions)
+    public async Task<IActionResult> Get([FromQuery] DataSourceLoadOptions loadOptions)
     {
         var result = await _mediator.Send(new GetNasaObjectsRequest { DataSourceLoadOptions = loadOptions });
 
