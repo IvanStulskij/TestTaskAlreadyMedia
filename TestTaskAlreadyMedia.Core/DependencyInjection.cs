@@ -10,6 +10,7 @@ public static class DependencyInjection
     {
         var assembly = typeof(DependencyInjection).Assembly;
         services.AddAutoMapper(assembly);
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(assembly));
     }
 
     public static void AddRefitServices(this IServiceCollection services)

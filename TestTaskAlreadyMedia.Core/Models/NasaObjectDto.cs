@@ -2,6 +2,7 @@
 
 public class NasaObjectDto
 {
+    public Guid? DbId { get; set; }
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string NameType { get; set; } = string.Empty;
