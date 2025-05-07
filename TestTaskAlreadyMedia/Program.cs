@@ -1,23 +1,43 @@
+using Hangfire;
+using TestTaskAlreadyMedia.Extensions;
+using TestTaskAlreadyMedia.Core;
+using TestTaskAlreadyMedia.Infrasructure;
+using TestTaskAlreadyMedia.Core.Jobs;
+using TestTaskAlreadyMedia.Middlewares;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.ConfigureOptions(builder.Configuration);
+builder.Services.AddOptions();
+builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddDbContext();
 builder.Services.AddOpenApi();
+builder.Services.AddHangfire();
+builder.Services.AddCoreServices();
+builder.Services.AddRefitServices();
+builder.Services.AddHostedService<JobsHostedService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:4200")
+           .AllowAnyMethod()
+           .AllowAnyHeader());
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
+app.UseAutoWrapper();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.MapControllers();
+await app.Services.ApplyMigrations();
 
 app.Run();
