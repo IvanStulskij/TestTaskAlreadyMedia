@@ -22,6 +22,11 @@ builder.Services.AddHostedService<JobsHostedService>();
 
 var app = builder.Build();
 
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:4200")
+           .AllowAnyMethod()
+           .AllowAnyHeader());
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

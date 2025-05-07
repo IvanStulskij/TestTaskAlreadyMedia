@@ -3,6 +3,7 @@ using DevExtreme.AspNet.Data.ResponseModel;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using TestTaskAlreadyMedia.Core.Helpers;
 using TestTaskAlreadyMedia.Core.Models;
 using TestTaskAlreadyMedia.Infrasructure;
 
@@ -84,14 +85,14 @@ public class GetNasaObjectsHandler : IRequestHandler<GetNasaObjectsRequest, Load
     {
         var availableSortings = new[] { nameof(NasaObjectDto.Year), nameof(NasaObjectDto.Mass) };
 
-        if (dataSourceLoadOptions.Sort != null && !dataSourceLoadOptions.Sort.Select(x => x.Selector).All(x => availableSortings.Contains(x)))
+        if (dataSourceLoadOptions.Sort != null && !dataSourceLoadOptions.Sort.Select(x => x.Selector).All(x => availableSortings.Contains(x, new StringsCustomComparer())))
         {
             throw new ValidationException($"Only types {string.Join(',', availableSortings)} available for sorting");
         }
 
         var availableGrouppings = new[] { nameof(NasaObjectDto.Year) };
 
-        if (dataSourceLoadOptions.Group != null && !dataSourceLoadOptions.Group.Select(x => x.Selector).All(x => availableGrouppings.Contains(x)))
+        if (dataSourceLoadOptions.Group != null && !dataSourceLoadOptions.Group.Select(x => x.Selector).All(x => availableGrouppings.Contains(x, new StringsCustomComparer())))
         {
             throw new ValidationException($"Only types {string.Join(',', availableGrouppings)} available for groupping");
         }
@@ -106,7 +107,7 @@ public class GetNasaObjectsHandler : IRequestHandler<GetNasaObjectsRequest, Load
                 {
                     var filter = dataSourceLoadOptions.Filter.Count > 0 ? dataSourceLoadOptions.Filter[0] as IList<object> : new List<object>();
 
-                    if (!availableFilterings.Contains(filter.First().ToString()))
+                    if (!availableFilterings.Contains(filter.First().ToString(), new StringsCustomComparer()))
                     {
                         throw new ValidationException($"Only types {string.Join(',', availableFilterings)} available for filtering");
                     }
